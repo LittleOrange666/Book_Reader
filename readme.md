@@ -54,4 +54,6 @@ It will start a local website on port 6756,
 
 and you can enjoy it by open "http://127.0.0.1:6756".
 
-It is suggested to use this with NAT traversal.
+It is suggested to use this with NAT traversal to read books on the mobile device.
+
+It is suggested to use with the [Web Tool Manager](https://github.com/LittleOrange666/Web_Tool_Manager)
