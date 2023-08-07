@@ -25,7 +25,6 @@
     function onEnterView(entries, observer) {
         for (let entry of entries) {
             if (entry.isIntersecting) {
-                console.log(entry);
                 history.replaceState({}, "", "#"+entry.target.id);
                 return;
             }
@@ -47,7 +46,7 @@
     }
     function add(o){
         q.push(o);
-        if (q.length==1) action();
+        if (q.length == 1) window.setTimeout(function(){action();},1);
     }
     for(let o of document.querySelectorAll('img')) add(o);
 </script>
