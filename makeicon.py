@@ -3,7 +3,7 @@ import os
 import subprocess
 
 os.chdir(os.path.dirname(__file__))
-with open("book_dictionary") as f:
+with open("book_dictionary", encoding="utf8") as f:
     root = f.read()
 import win32api
 import win32con

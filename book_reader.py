@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 if not os.path.isfile("book_dictionary"):
     print("file 'book_dictionary' missing")
     exit()
-with open("book_dictionary") as f:
+with open("book_dictionary", encoding="utf8") as f:
     bookfolder = f.read()
 app = Flask(__name__, static_folder='static', static_url_path='')
 books = {}
