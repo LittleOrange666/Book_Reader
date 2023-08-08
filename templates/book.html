@@ -6,6 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <link href="/book.css" rel="stylesheet">
     <style>
     {% if not mobile %}
     #main_area {
@@ -16,18 +17,43 @@
     </style>
 </head>
 <body>
-<div id="main_area" style="display: inline-block;background-color: #404040;align:center;">
+<div id="main_area">
         {% for page in pages %}
         <img class="img lazy" data-src='/book/{{ name }}/{{ page }}' id='{{ page.replace(".","_") }}' style='display: block;margin:0 auto;width:100%;'>
         {% endfor %}
 </div>
+<div id="bottom_area">
+    <p id="page">?/?</p>
+    <button type="button" id="BackTop" class="toTop-arrow"></button>
+</div>
 <script>
+	$('#BackTop').click(function(){
+		$body.scrollTop(0);
+	});
+	$(window).scroll(function() {
+		if ($(this).scrollTop() > 300 ){
+			$('#BackTop').fadeIn(222);
+		} else {
+			$('#BackTop').stop().fadeOut(222);
+		}
+	}).scroll();
+    var hash = location.hash;
+    let page_cnt = document.querySelectorAll('img').length;
+    $("#page").text("1/"+page_cnt);
+    function update_page(){
+        let s = location.hash;
+        if (s){
+            s = s.substr(1,s.indexOf("_")-1);
+            $("#page").text(s+"/"+page_cnt);
+        }
+    }
     var cur = null;
     function onEnterView(entries, observer) {
         for (let entry of entries) {
             if (entry.isIntersecting && entry.intersectionRatio>0.75) {
                 cur = entry.target;
                 history.replaceState({}, "", "#"+entry.target.id);
+                update_page();
                 return;
             }
         }
@@ -42,6 +68,11 @@
             window.setTimeout(function(){watcher.observe(img);},1);
             if (q.length){
                 action();
+            }else{
+                if (hash){
+                    var target_top = $(hash).offset().top;
+                    $body.scrollTop(target_top);
+                }
             }
         }
         img.onload = cur;
@@ -69,6 +100,7 @@
         }
         return false;
     });
+    update_page();
 </script>
 </body>
 </html>
