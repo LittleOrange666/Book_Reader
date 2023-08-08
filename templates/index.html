@@ -43,7 +43,7 @@
     $.post("/get", {"stop": "30"},function(data,status){add(data);});
     function addDemo() {
         let documentElement = document.documentElement
-        if (documentElement.scrollTop + 500 >= documentElement.scrollHeight - documentElement.clientHeight) {
+        if (documentElement.scrollTop + 1000 >= documentElement.scrollHeight - documentElement.clientHeight) {
             if (detect){
                 detect = false;
                 $.post("/get", {"start": ""+end, "stop":""+(step+end)},function(data,status){add(data);});
