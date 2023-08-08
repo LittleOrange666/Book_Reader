@@ -23,9 +23,10 @@
         {% endfor %}
 </div>
 <div id="bottom_area">
-    <p id="page">?/?</p>
-    <button type="button" id="BackTop" class="toTop-arrow"></button>
+    <p id="page" class="white_text">?/?</p>
+    <p id="loading" class="white_text">Loading...0%</p>
 </div>
+<button type="button" id="BackTop" class="toTop-arrow"></button>
 <script>
 	$('#BackTop').click(function(){
 		$body.scrollTop(0);
@@ -39,7 +40,7 @@
 	}).scroll();
     var hash = location.hash;
     let page_cnt = document.querySelectorAll('img').length;
-    $("#page").text("1/"+page_cnt);
+    $("#page").text("0".repeat(Math.floor(Math.log10(page_cnt)))+"1/"+page_cnt);
     function update_page(){
         let s = location.hash;
         if (s){
@@ -65,15 +66,18 @@
     function action(){
         let img = q.shift();
         function cur(){
-            window.setTimeout(function(){watcher.observe(img);},1);
+            let w = Math.floor(1000*(page_cnt-q.length)/page_cnt);
+            $("#loading").text("Loading..."+(Math.floor(w/10))+"."+(w%10)+"%")
             if (q.length){
-                action();
+                window.setTimeout(function(){action();},1);
             }else{
+                $("#loading").css("display","none");
                 if (hash){
                     var target_top = $(hash).offset().top;
                     $body.scrollTop(target_top);
                 }
             }
+            window.setTimeout(function(){watcher.observe(img);},1);
         }
         img.onload = cur;
         img.setAttribute('src', img.dataset.src);

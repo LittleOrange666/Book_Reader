@@ -5,7 +5,7 @@
     justify-content: center;
     background-color: rgba(0,0,0,0.75);
 }
-#page{
+.white_text{
     color: rgba(255,255,255,0.5);
     text-align:center;
     margin-bottom:0px;
