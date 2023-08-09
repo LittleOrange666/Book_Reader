@@ -75,6 +75,7 @@
                 if (hash){
                     var target_top = $(hash).offset().top;
                     $body.scrollTop(target_top);
+                    hash = null;
                 }
             }
             window.setTimeout(function(){watcher.observe(img);},1);
