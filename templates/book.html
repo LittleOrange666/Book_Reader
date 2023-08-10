@@ -41,6 +41,7 @@
     var hash = location.hash;
     let page_cnt = document.querySelectorAll('img').length;
     $("#page").text("0".repeat(Math.floor(Math.log10(page_cnt)))+"1/"+page_cnt);
+    if (hash) update_page();
     function update_page(){
         let s = location.hash;
         if (s){
@@ -68,15 +69,15 @@
         function cur(){
             let w = Math.floor(1000*(page_cnt-q.length)/page_cnt);
             $("#loading").text("Loading..."+(Math.floor(w/10))+"."+(w%10)+"%")
+            if (hash && ("#"+img.id)==hash){
+                var target_top = $(hash).offset().top;
+                $body.scrollTop(target_top);
+                hash = null;
+            }
             if (q.length){
                 window.setTimeout(function(){action();},1);
             }else{
                 $("#loading").css("display","none");
-                if (hash){
-                    var target_top = $(hash).offset().top;
-                    $body.scrollTop(target_top);
-                    hash = null;
-                }
             }
             window.setTimeout(function(){watcher.observe(img);},1);
         }
