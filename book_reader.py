@@ -12,15 +12,17 @@ with open("book_dictionary", encoding="utf8") as f:
 app = Flask(__name__, static_folder='static', static_url_path='')
 books = {}
 bookids = []
+bookdata = []
 
 
 def update_books():
-    global books, bookids
+    global books, bookids, bookdata
     l = os.listdir(bookfolder)
     d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l]
     d.sort(reverse=True)
     bookids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])) for o in d]
     books = {bookids[i]: o[1] for i, o in enumerate(d)}
+    bookdata = [[s, books[s]] for s in bookids]
 
 
 def checkMobile(request):
@@ -42,7 +44,7 @@ def checkMobile(request):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', mobile=checkMobile(request))
+    return render_template('index.html', mobile=checkMobile(request), data = bookdata)
 
 
 @app.route('/get', methods=['POST'])
