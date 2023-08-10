@@ -64,7 +64,7 @@
     const watcher = new IntersectionObserver(onEnterView);
     const lazyImages = document.querySelectorAll('img.lazy');
     for (let image of lazyImages) {
-        $(image).css("height","400px");
+        $(image).css("height",$(".gallery:first").css("width"));
         watcher.observe(image);
     }
 </script>
