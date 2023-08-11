@@ -40,7 +40,7 @@
 <div id="main_area">
     {% for uid, name in data %}
     <div class='gallery'>
-        <a href='/book/{{ uid }}' style=''>
+        <a href='/book/{{ uid }}'>
             <img class='lazy' data-src='/icon/{{ uid }}'>
             <p>{{ name }}</p>
         </a>
@@ -48,23 +48,53 @@
     {% endfor %}
 </div>
 <script>
+    {% if mobile %}
+    var mobile = true;
+    {% else %}
+    var mobile = false;
+    {% endif %}
+    const step = 90;
+    var waiting = true;
+    var end = 90;
+    function add_end(){
+        if (waiting){
+            waiting = false;
+            $.post("/get", {"start": ""+end, "stop":""+(step+end)},function(data,status){
+                let HEIGHT = (document.body.clientWidth / (mobile?3:6)) + "px";
+                for(let o of data){
+                    let e = $("<div class='gallery'><a href='/book/"+o[0]+"'><img class='lazy' data-src='/icon/"+o[0]+"'><p>"+o[1]+"</p></a></div>");
+                    let img = e.find("img");
+                    img.css("height",HEIGHT);
+                    watcher.observe(img[0]);
+                    $("#main_area").append(e);
+                }
+                if (data.length){
+                    end += step;
+                    waiting = true;
+                }
+            });
+        }
+    }
     function onEnterView(entries, observer) {
+        var imgs = document.querySelectorAll('img');
+        var first_img = imgs[0];
+        var last_img = imgs[imgs.length - 1];
         for (let entry of entries) {
             if (entry.isIntersecting) {
-                // 監視目標進入畫面
-                const img = entry.target
-                img.setAttribute('src', img.dataset.src) // 把值塞回 src
-                img.removeAttribute('data-src')
-                observer.unobserve(img) // 取消監視
-                img.onload = ()=>$(img).css("height","auto");
-                if (img.completed) $(img).css("height","auto");
+                const img = entry.target;
+                img.setAttribute('src', img.dataset.src);
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+                $(img).css("height","auto");
+                if (img === last_img) add_end();
             }
         }
     }
     const watcher = new IntersectionObserver(onEnterView);
     const lazyImages = document.querySelectorAll('img.lazy');
+    let HEIGHT = (document.body.clientWidth / (mobile?3:6)) + "px";
     for (let image of lazyImages) {
-        $(image).css("height",$(".gallery:first").css("width"));
+        $(image).css("height",HEIGHT);
         watcher.observe(image);
     }
 </script>
