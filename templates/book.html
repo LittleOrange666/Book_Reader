@@ -18,9 +18,13 @@
 </head>
 <body>
 <div id="main_area">
-        {% for page in pages %}
-        <img class="img lazy" data-src='/book/{{ name }}/{{ page }}' id='{{ page.replace(".","_") }}' style='display: block;margin:0 auto;width:100%;'>
-        {% endfor %}
+    {% for page in pages %}
+    <img class="img lazy" data-src='/book/{{ name }}/{{ page }}' id='{{ page.replace(".","_") }}' style='display: block;margin:0 auto;width:100%;'>
+    {% endfor %}
+    {% if source %}
+    <p class="source"><a href="{{ source }}" class="source" target="_blank">Source</a></p>
+    <p class="source">     </p>
+    {% endif %}
 </div>
 <div id="bottom_area">
     <p id="page" class="white_text">?/?</p>
@@ -52,7 +56,7 @@
     var cur = null;
     function onEnterView(entries, observer) {
         for (let entry of entries) {
-            if (entry.isIntersecting && entry.intersectionRatio>0.75) {
+            if (entry.isIntersecting && entry.intersectionRatio>0.25) {
                 cur = entry.target;
                 history.replaceState({}, "", "#"+entry.target.id);
                 update_page();

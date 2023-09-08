@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -14,16 +15,25 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 books = {}
 bookids = []
 bookdata = []
+bookcodes = {}
 
 
 def update_books():
-    global books, bookids, bookdata
+    global books, bookids, bookdata, bookcodes
     l = os.listdir(bookfolder)
     d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l]
     d.sort(reverse=True)
     bookids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])) for o in d]
     books = {bookids[i]: o[1] for i, o in enumerate(d)}
     bookdata = [[s, books[s]] for s in bookids]
+    if os.path.isfile("codes.json"):
+        bookcodes = {}
+        with open("codes.json") as f:
+            obj = json.load(f)
+        for k,v in obj.items():
+            for ch in r'\/:*?"<>|':
+                v = v.replace(ch, "_")
+            bookcodes[v] = k
 
 
 def checkMobile(request):
@@ -70,7 +80,10 @@ def book(name):
         l.remove("icon.ico")
     if "desktop.ini" in l:
         l.remove("desktop.ini")
-    return render_template('book.html', name=name, title=books[name], pages=l, mobile=checkMobile(request))
+    source = ""
+    if books[name] in bookcodes:
+        source = bookcodes[books[name]]
+    return render_template('book.html', name=name, title=books[name], pages=l, mobile=checkMobile(request), source=source)
 
 
 @app.route('/book/<name>/<page>', methods=['GET'])

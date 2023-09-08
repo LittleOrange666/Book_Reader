@@ -60,7 +60,7 @@
         if (waiting){
             waiting = false;
             $.post("/get", {"start": ""+end, "stop":""+(step+end)},function(data,status){
-                let HEIGHT = (document.body.clientWidth / (mobile?3:6)) + "px";
+                let HEIGHT = Math.floor(document.body.clientWidth / (mobile?3:6)) + "px";
                 for(let o of data){
                     let e = $("<div class='gallery'><a href='/book/"+o[0]+"'><img class='lazy' data-src='/icon/"+o[0]+"'><p>"+o[1]+"</p></a></div>");
                     let img = e.find("img");
@@ -92,7 +92,7 @@
     }
     const watcher = new IntersectionObserver(onEnterView);
     const lazyImages = document.querySelectorAll('img.lazy');
-    let HEIGHT = (document.body.clientWidth / (mobile?3:6)) + "px";
+    let HEIGHT = Math.floor(document.body.clientWidth / (mobile?3:6)) + "px";
     for (let image of lazyImages) {
         $(image).css("height",HEIGHT);
         watcher.observe(image);

@@ -13,7 +13,6 @@
 }
 #main_area {
     display: inline-block;
-    background-color: #404040;
     align:center;
 }
 .toTop-arrow {
@@ -49,3 +48,11 @@
 }
 .toTop-arrow:focus {outline: none;}
 
+.source{
+    text-align:center;
+    font-size: 40px;
+	height: 50px;
+    color: #404040;
+    text-decoration: none;
+    justify-content: center;
+}
