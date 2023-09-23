@@ -16,6 +16,9 @@ books = {}
 bookids = []
 bookdata = []
 bookcodes = {}
+preload_cnt = 90
+loading_step = 90
+port = 6756
 
 
 def update_books():
@@ -30,7 +33,7 @@ def update_books():
         bookcodes = {}
         with open("codes.json") as f:
             obj = json.load(f)
-        for k,v in obj.items():
+        for k, v in obj.items():
             for ch in r'\/:*?"<>|':
                 v = v.replace(ch, "_")
             bookcodes[v] = k
@@ -55,7 +58,11 @@ def checkMobile(request):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', mobile=checkMobile(request), data=bookdata[:90])
+    preload_cnt_local = min(preload_cnt, len(bookdata))
+    if request.headers.get("host")==f"127.0.0.1:{port}":
+        preload_cnt_local = len(bookdata)
+    return render_template('index.html', mobile=checkMobile(request), data=bookdata[:preload_cnt_local],
+                           preload_cnt=str(preload_cnt_local), loading_step=str(loading_step))
 
 
 @app.route('/get', methods=['POST'])
@@ -83,7 +90,8 @@ def book(name):
     source = ""
     if books[name] in bookcodes:
         source = bookcodes[books[name]]
-    return render_template('book.html', name=name, title=books[name], pages=l, mobile=checkMobile(request), source=source)
+    return render_template('book.html', name=name, title=books[name], pages=l, mobile=checkMobile(request),
+                           source=source)
 
 
 @app.route('/book/<name>/<page>', methods=['GET'])
@@ -96,4 +104,4 @@ def readbook(name, page):
 
 if __name__ == '__main__':
     update_books()
-    app.run(port=6756)
+    app.run(port=port)

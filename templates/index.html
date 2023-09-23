@@ -21,6 +21,14 @@
         display: inline-block;
         margin:0 auto;
     }
+    .gallery div{
+        position: relative;
+    }
+    .gallery div:after{
+        content: "";
+        display: block;
+        padding-bottom: 100%;
+    }
     a {
         text-decoration:none;
         margin:0 auto;
@@ -29,7 +37,9 @@
         margin:0 auto;
         color: #d9d9d9;
     }
-    img.lazy {
+    img{
+        position: absolute;
+        height: 100%;
         display: block;
         margin:0 auto;
         width:100%;
@@ -41,7 +51,9 @@
     {% for uid, name in data %}
     <div class='gallery'>
         <a href='/book/{{ uid }}'>
-            <img class='lazy' data-src='/icon/{{ uid }}'>
+            <div>
+                <img class='lazy' data-src='/icon/{{ uid }}'>
+            </div>
             <p>{{ name }}</p>
         </a>
     </div>
@@ -53,16 +65,16 @@
     {% else %}
     var mobile = false;
     {% endif %}
-    const step = 90;
+    const step = {{ loading_step }};
     var waiting = true;
-    var end = 90;
+    var end = {{ preload_cnt }};
     function add_end(){
         if (waiting){
             waiting = false;
             $.post("/get", {"start": ""+end, "stop":""+(step+end)},function(data,status){
                 let HEIGHT = Math.floor(document.body.clientWidth / (mobile?3:6)) + "px";
                 for(let o of data){
-                    let e = $("<div class='gallery'><a href='/book/"+o[0]+"'><img class='lazy' data-src='/icon/"+o[0]+"'><p>"+o[1]+"</p></a></div>");
+                    let e = $("<div class='gallery'><a href='/book/"+o[0]+"'><div><img class='lazy' data-src='/icon/"+o[0]+"'></div><p>"+o[1]+"</p></a></div>");
                     let img = e.find("img");
                     img.css("height",HEIGHT);
                     watcher.observe(img[0]);
@@ -85,7 +97,6 @@
                 img.setAttribute('src', img.dataset.src);
                 img.removeAttribute('data-src');
                 observer.unobserve(img);
-                $(img).css("height","auto");
                 if (img === last_img) add_end();
             }
         }
@@ -94,7 +105,6 @@
     const lazyImages = document.querySelectorAll('img.lazy');
     let HEIGHT = Math.floor(document.body.clientWidth / (mobile?3:6)) + "px";
     for (let image of lazyImages) {
-        $(image).css("height",HEIGHT);
         watcher.observe(image);
     }
 </script>

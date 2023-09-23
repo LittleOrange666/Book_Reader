@@ -56,7 +56,7 @@
     var cur = null;
     function onEnterView(entries, observer) {
         for (let entry of entries) {
-            if (entry.isIntersecting && entry.intersectionRatio>0.25) {
+            if (entry.isIntersecting && entry.intersectionRatio>0.3) {
                 cur = entry.target;
                 history.replaceState({}, "", "#"+entry.target.id);
                 update_page();
