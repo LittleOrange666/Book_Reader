@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 import uuid
 
 os.chdir(os.path.dirname(__file__))
@@ -19,10 +20,14 @@ bookcodes = {}
 preload_cnt = 90
 loading_step = 90
 port = 6756
+last_update = 0
+last_run_update = 0
 
 
 def update_books():
-    global books, bookids, bookdata, bookcodes
+    global books, bookids, bookdata, bookcodes, last_update, last_run_update
+    last_update = os.path.getmtime(bookfolder)
+    last_run_update = time.time()
     l = os.listdir(bookfolder)
     d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l]
     d.sort(reverse=True)
@@ -39,8 +44,15 @@ def update_books():
             bookcodes[v] = k
 
 
+def check_update():
+    if last_update < os.path.getmtime(bookfolder) and time.time() - last_run_update > 60:
+        update_books()
+
+
 def checkMobile(request):
-    userAgent = request.headers['User-Agent']
+    userAgent = request.headers.get('User-Agent', '')
+    if userAgent == '':
+        return False
 
     _long_matches = r'googlebot-mobile|android|avantgo|blackberry|blazer|elaine|hiptop|ip(hone|od)|kindle|midp|mmp|mobile|o2|opera mini|palm( os)?|pda|plucker|pocket|psp|smartphone|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce; (iemobile|ppc)|xiino|maemo|fennec'
     _long_matches = re.compile(_long_matches, re.IGNORECASE)
@@ -58,8 +70,9 @@ def checkMobile(request):
 @app.route('/')
 @app.route('/index')
 def index():
+    check_update()
     preload_cnt_local = min(preload_cnt, len(bookdata))
-    if request.headers.get("host")==f"127.0.0.1:{port}":
+    if request.headers.get("host") == f"127.0.0.1:{port}":
         preload_cnt_local = len(bookdata)
     return render_template('index.html', mobile=checkMobile(request), data=bookdata[:preload_cnt_local],
                            preload_cnt=str(preload_cnt_local), loading_step=str(loading_step))
