@@ -128,4 +128,4 @@ def readbook(name, page):
 
 if __name__ == '__main__':
     update_books()
-    app.run(port=port)
+    app.run("0.0.0.0", port=port)
