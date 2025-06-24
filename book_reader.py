@@ -17,6 +17,7 @@ else:
         bookfolder = f.read()
 app = Flask(__name__, static_folder='static', static_url_path='')
 books = {}
+booktitles = {}
 bookids = []
 bookdata = []
 bookcodes = {}
@@ -29,17 +30,22 @@ query_cnt = 0
 
 
 def update_books():
-    global books, bookids, bookdata, bookcodes, last_update, last_run_update, query_cnt
+    global books, bookids, bookdata, bookcodes, last_update, last_run_update, query_cnt, booktitles
     query_cnt = 0
     last_update = os.path.getmtime(bookfolder)
     last_run_update = time.time()
     l = os.listdir(bookfolder)
-    d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l if
+    names = {}
+    if os.path.exists(os.path.join(bookfolder, "names.json")):
+        with open(os.path.join(bookfolder, "names.json"), encoding="utf8") as f:
+            names = json.load(f)
+    d = [(os.path.getctime(os.path.join(bookfolder, s)), names.get(s,s), s) for s in l if
          os.path.exists(os.path.join(bookfolder, s, "icon.ico"))]
     d.sort(reverse=True)
     bookids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])) for o in d]
-    books = {bookids[i]: o[1] for i, o in enumerate(d)}
-    bookdata = [[s, books[s]] for s in bookids]
+    books = {bookids[i]: o[2] for i, o in enumerate(d)}
+    booktitles = {bookids[i]: o[1] for i, o in enumerate(d)}
+    bookdata = [[str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])), o[1]] for o in d]
     if os.path.isfile("data/codes.json"):
         bookcodes = {}
         with open("data/codes.json") as f:
@@ -114,7 +120,7 @@ def book(name):
     source = ""
     if books[name] in bookcodes:
         source = bookcodes[books[name]]
-    return render_template('book.html', name=name, title=books[name], pages=l, mobile=checkMobile(request),
+    return render_template('book.html', name=name, title=booktitles[name], pages=l, mobile=checkMobile(request),
                            source=source)
 
 
