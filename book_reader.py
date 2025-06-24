@@ -3,15 +3,18 @@ import os
 import re
 import time
 import uuid
-
-os.chdir(os.path.dirname(__file__))
 from flask import Flask, render_template, request, jsonify, send_file
 
-if not os.path.isfile("book_dictionary"):
-    print("file 'book_dictionary' missing")
-    exit()
-with open("book_dictionary", encoding="utf8") as f:
-    bookfolder = f.read()
+os.chdir(os.path.dirname(__file__))
+
+if "BOOK_DIR" in os.environ:
+    bookfolder = os.environ["BOOK_DIR"]
+else:
+    if not os.path.isfile("data/book_dictionary"):
+        print("file 'book_dictionary' missing")
+        exit()
+    with open("data/book_dictionary", encoding="utf8") as f:
+        bookfolder = f.read()
 app = Flask(__name__, static_folder='static', static_url_path='')
 books = {}
 bookids = []
@@ -22,21 +25,24 @@ loading_step = 90
 port = 6756
 last_update = 0
 last_run_update = 0
+query_cnt = 0
 
 
 def update_books():
-    global books, bookids, bookdata, bookcodes, last_update, last_run_update
+    global books, bookids, bookdata, bookcodes, last_update, last_run_update, query_cnt
+    query_cnt = 0
     last_update = os.path.getmtime(bookfolder)
     last_run_update = time.time()
     l = os.listdir(bookfolder)
-    d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l]
+    d = [(os.path.getctime(os.path.join(bookfolder, s)), s) for s in l if
+         os.path.exists(os.path.join(bookfolder, s, "icon.ico"))]
     d.sort(reverse=True)
     bookids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])) for o in d]
     books = {bookids[i]: o[1] for i, o in enumerate(d)}
     bookdata = [[s, books[s]] for s in bookids]
-    if os.path.isfile("codes.json"):
+    if os.path.isfile("data/codes.json"):
         bookcodes = {}
-        with open("codes.json") as f:
+        with open("data/codes.json") as f:
             obj = json.load(f)
         for k, v in obj.items():
             for ch in r'\/:*?"<>|':
@@ -45,7 +51,8 @@ def update_books():
 
 
 def check_update():
-    if last_update < os.path.getmtime(bookfolder) and time.time() - last_run_update > 60:
+    if last_update < os.path.getmtime(
+            bookfolder) and time.time() - last_run_update > 60 or time.time() - last_run_update > 1000 or query_cnt > 10:
         update_books()
 
 
@@ -70,6 +77,8 @@ def checkMobile(request):
 @app.route('/')
 @app.route('/index')
 def index():
+    global query_cnt
+    query_cnt += 1
     check_update()
     preload_cnt_local = min(preload_cnt, len(bookdata))
     if request.headers.get("host") == f"127.0.0.1:{port}":
@@ -80,6 +89,7 @@ def index():
 
 @app.route('/get', methods=['POST'])
 def get():
+    check_update()
     start = int(request.form['start']) if "start" in request.form else 0
     stop = int(request.form["stop"])
     stop = min(stop, len(books))
@@ -100,6 +110,7 @@ def book(name):
         l.remove("icon.ico")
     if "desktop.ini" in l:
         l.remove("desktop.ini")
+    l.sort(key=lambda x: int(x.split(".")[0]))
     source = ""
     if books[name] in bookcodes:
         source = bookcodes[books[name]]

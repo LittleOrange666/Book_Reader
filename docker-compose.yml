@@ -1,0 +1,28 @@
+services:
+  book_reader:
+    image: littleorange666/book_reader:1.0.0
+    read_only: true
+    restart: on-failure
+    volumes:
+      - ./data:/app/data
+      - ./book:/app/book
+    environment:
+      - BOOK_DIR=/app/book
+    ports:
+      - "0.0.0.0:6756:6756"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import http.client; c=http.client.HTTPConnection('localhost', 6756); c.request('GET', '/'); r=c.getresponse(); exit(0) if r.status < 400 else exit(1)"]
+      interval: 10s
+      start_period: 10s
+      timeout: 3s
+      retries: 5
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    read_only: true
+    restart: unless-stopped
+    command: tunnel --url http://book_reader:6756 --no-autoupdate run
+    env_file:
+      - ./tunnel.env
+    depends_on:
+      book_reader:
+        condition: service_healthy

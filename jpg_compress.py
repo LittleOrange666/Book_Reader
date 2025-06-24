@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 if __name__ == '__main__':
-    with open("book_dictionary", encoding="utf8") as f:
+    with open("data/book_dictionary", encoding="utf8") as f:
         bookfolder = f.read()
     cnt = len(os.listdir(bookfolder))
     i = 0

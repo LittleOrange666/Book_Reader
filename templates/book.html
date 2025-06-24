@@ -99,14 +99,26 @@
     $body.keypress(function(event){
         event.preventDefault();
         lock = true;
+        let code = event.code;
         if (cur){
-            let t = $(cur).next();
-            if (t[0]){
-                cur = t[0];
-                history.replaceState({}, "", "#"+cur.id);
-                var target_top = t.offset().top;
-                $body.scrollTop(target_top);
-            };
+            if (code==="Space"||code==="ArrowRight"||code==="ArrowDown"||code==="PageDown"||code==="KeyS"||code==="KeyD") {
+                let t = $(cur).next();
+                if (t[0]) {
+                    cur = t[0];
+                    history.replaceState({}, "", "#" + cur.id);
+                    var target_top = t.offset().top;
+                    $body.scrollTop(target_top);
+                }
+            }
+            if (code==="ArrowLeft"||code==="ArrowUp"||code==="PageUp"||code==="KeyW"||code==="KeyA") {
+                let t = $(cur).prev();
+                if (t[0]) {
+                    cur = t[0];
+                    history.replaceState({}, "", "#" + cur.id);
+                    var target_top = t.offset().top;
+                    $body.scrollTop(target_top);
+                }
+            }
         }
         return false;
     });

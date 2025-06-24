@@ -1,4 +1,3 @@
-book_dictionary
-dat.json
-codes.json
+data/
 .idea/
+tunnel.env
