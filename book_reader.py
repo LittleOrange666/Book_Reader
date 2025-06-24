@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 import re
 import time
 import uuid
@@ -29,6 +30,12 @@ last_run_update = 0
 query_cnt = 0
 
 
+def read_ctime(folder, s):
+    if platform.system() != 'Windows' and s.count("_") == 2:
+        return float(s.split("_")[1])
+    return os.path.getctime(os.path.join(folder, s))
+
+
 def update_books():
     global books, bookids, bookdata, bookcodes, last_update, last_run_update, query_cnt, booktitles
     query_cnt = 0
@@ -39,7 +46,7 @@ def update_books():
     if os.path.exists(os.path.join(bookfolder, "names.json")):
         with open(os.path.join(bookfolder, "names.json"), encoding="utf8") as f:
             names = json.load(f)
-    d = [(os.path.getctime(os.path.join(bookfolder, s)), names.get(s,s), s) for s in l if
+    d = [(read_ctime(bookfolder, s), names.get(s, s), s) for s in l if
          os.path.exists(os.path.join(bookfolder, s, "icon.ico"))]
     d.sort(reverse=True)
     bookids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, o[1])) for o in d]
@@ -118,8 +125,8 @@ def book(name):
         l.remove("desktop.ini")
     l.sort(key=lambda x: int(x.split(".")[0]))
     source = ""
-    if books[name] in bookcodes:
-        source = bookcodes[books[name]]
+    if booktitles[name] in bookcodes:
+        source = bookcodes[booktitles[name]]
     return render_template('book.html', name=name, title=booktitles[name], pages=l, mobile=checkMobile(request),
                            source=source)
 
