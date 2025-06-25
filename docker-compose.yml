@@ -1,6 +1,6 @@
 services:
   book_reader:
-    image: littleorange666/book_reader:1.1.1
+    image: littleorange666/book_reader:1.1.2
     read_only: true
     restart: on-failure
     volumes:
