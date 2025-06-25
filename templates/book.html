@@ -8,13 +8,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
     <link href="/book.css" rel="stylesheet">
     <style>
-    {% if not mobile %}
-    #main_area {
-          width: 30vw;
-          margin-left: auto;
-          margin-right: auto;
-    }
-    {% endif %}
     </style>
 </head>
 <body>
@@ -32,6 +25,23 @@
     <p id="loading" class="white_text">Loading...0%</p>
 </div>
 <button type="button" id="BackTop" class="toTop-arrow"></button>
+{% if not mobile %}
+<script>
+const base_zoom = Math.max(Math.floor(window.devicePixelRatio || 1),1);
+function updateLayout() {
+    const zoom = (window.devicePixelRatio || 1)/base_zoom;
+    const contentPercent = zoom * 30;
+    const contentWidth = Math.min(100, Math.max(10, contentPercent));
+    const marginPercent = (100 - contentWidth) / 2;
+    const mainContent = document.querySelector('#main_area');
+    mainContent.style["margin-left"] = `${marginPercent}%`;
+    mainContent.style["margin-right"] = `${marginPercent}%`;
+}
+updateLayout();
+
+window.addEventListener('resize', updateLayout);
+</script>
+{% endif %}
 <script>
 	$('#BackTop').click(function(){
 		$body.scrollTop(0);
