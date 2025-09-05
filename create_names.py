@@ -6,10 +6,12 @@ import tqdm
 import win32api
 import win32con
 
-if not os.path.isfile("data/book_dictionary"):
+book_dictionary = os.path.join(os.path.dirname(__file__),"data","book_dictionary")
+
+if not os.path.isfile(book_dictionary):
     print("file 'book_dictionary' missing")
     exit()
-with open("data/book_dictionary", encoding="utf8") as f:
+with open(book_dictionary, encoding="utf8") as f:
     bookfolder = f.read()
 
 
@@ -42,7 +44,6 @@ def main():
     with open(os.path.join(bookfolder, "names.json"), "w", encoding="utf8") as f:
         json.dump(names, f, ensure_ascii=False, indent=4)
     print(f"Created {len(names)} names.")
-    input("Press Enter to exit...")
 
 
 if __name__ == '__main__':

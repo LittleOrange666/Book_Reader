@@ -4,7 +4,7 @@ import platform
 import re
 import time
 import uuid
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, abort
 
 os.chdir(os.path.dirname(__file__))
 
@@ -118,6 +118,8 @@ def icon(name):
 @app.route('/book/<name>', methods=['GET'])
 def book(name):
     folder = os.path.join(bookfolder, books[name])
+    if not os.path.exists(folder):
+        abort(404)
     l = os.listdir(folder)
     if "icon.ico" in l:
         l.remove("icon.ico")
